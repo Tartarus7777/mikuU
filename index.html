@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>小塔在干嘛喵</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <style>
+    /* 地图容器 */
+    #map {
+      width: 800px;
+      height: 600px;
+      margin: 20px auto;
+      background: url('map.jpg') no-repeat;
+      background-size: contain;
+      position: relative;
+    }
+
+    /* 小人图标 */
+    #person {
+      width: 40px;
+      height: 40px;
+      position: absolute;
+      transition: all 0.5s ease; /* 平滑移动动画 */
+    }
+
+    /* 预设四个位置坐标（根据实际图片调整） */
+    .location1 { left: 15%; top: 30%; }  /* 宿舍 */
+    .location2 { left: 70%; top: 45%; }  /* 食堂 */
+    .location3 { left: 40%; top: 60%; }  /* 教室 */
+    .location4 { left: 55%; top: 20%; }  /* 图书馆 */
+
+    /* 管理员界面 */
+    #adminPanel {
+      text-align: center;
+      padding: 20px;
+    }
+    select, button {
+      padding: 8px;
+      margin: 5px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 地图和小人 -->
+  <div id="map">
+    <img src="person.jpg" id="person" class="location1">
+  </div>
+
+  <!-- 管理员控制面板 -->
+  <div id="adminPanel" style="display: none;">
+    <select id="location">
+      <option value="location1">宿舍</option>
+      <option value="location2">食堂</option>
+      <option value="location3">教室</option>
+      <option value="location4">图书馆</option>
+    </select>
+    <button onclick="updateLocation()">更新位置</button>
+  </div>
+
+  <script>
+    // Firebase配置（替换为你自己的配置）
+    const firebaseConfig = {
+      apiKey: "AIzaSyAIe2Th7xdexrh1ZhnxCuH-or8mspMYpDk",
+      authDomain: "tartarus-3e705.firebaseapp.com",
+      databaseURL: "https://tartarus-3e705-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "tartarus-3e705",
+      storageBucket: "tartarus-3e705.firebasestorage.app",
+      messagingSenderId: "192253876792",
+      appId: "1:192253876792:web:56ff2effe68b2b1aaa64cd",
+      measurementId: "G-36QLSB4CFQ"
+    };
+
+    // 初始化
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // 监听位置变化
+    database.ref('location').on('value', (snapshot) => {
+      const locationClass = snapshot.val() || 'location1';
+      document.getElementById('person').className = locationClass;
+    });
+
+    // 管理员更新位置
+    function updateLocation() {
+      const password = prompt("请输入管理员密码:");
+      if (password !== "OOO") return;
+
+      const selectedLocation = document.getElementById('location').value;
+      database.ref('location').set(selectedLocation);
+    }
+
+    // 显示管理员界面
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('admin') === 'true') {
+      document.getElementById('adminPanel').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
