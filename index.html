@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>小塔在干嘛喵</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <style>
+    /* 重置默认边距 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* 全屏地图容器 */
+    #map {
+      width: 100vw;
+      height: 100vh;
+      background: url('map.jpg') no-repeat center center fixed;
+      background-size: cover;
+      position: relative;
+    }
+
+    /* 小人图标 */
+    #person {
+      width: 250px;
+      height: 250px;
+      position: absolute;
+      transition: all 0.5s ease;
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+
+    /* 预设四个位置坐标 */
+    .location1 { left: 20%; top: 40%; }  /* 宿舍 */
+    .location2 { left: 70%; top: 55%; }  /* 食堂 */
+    .location3 { left: 85%; top: 50%; }  /* 教室 */
+    .location4 { left: 75%; top: 15%; }  /* 图书馆 */
+
+    /* 管理员面板 */
+    #adminPanel {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255,255,255,0.9);
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <!-- 地图和小人 -->
+  <div id="map">
+    <div id="person"></div> <!-- 改用div承载图片 -->
+  </div>
+
+  <!-- 管理员控制面板 -->
+  <div id="adminPanel" style="display: none;">
+    <select id="location">
+      <option value="location1">宿舍</option>
+      <option value="location2">食堂</option>
+      <option value="location3">教室</option>
+      <option value="location4">图书馆</option>
+    </select>
+    <button onclick="updateLocation()">更新位置</button>
+  </div>
+
+  <script>
+    // Firebase配置
+    const firebaseConfig = {
+      apiKey: "AIzaSyAIe2Th7xdexrh1ZhnxCuH-or8mspMYpDk",
+      authDomain: "tartarus-3e705.firebaseapp.com",
+      databaseURL: "https://tartarus-3e705-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "tartarus-3e705",
+      storageBucket: "tartarus-3e705.firebasestorage.app",
+      messagingSenderId: "192253876792",
+      appId: "1:192253876792:web:56ff2effe68b2b1aaa64cd",
+      measurementId: "G-36QLSB4CFQ"
+    };
+
+    // 初始化
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // 不同位置的图片配置
+    const locationConfig = {
+      location1: { 
+        image: 'a.jpg',
+        size: [50, 50]
+      },
+      location2: {
+        image: 'b.jpg',
+        size: [60, 60]
+      },
+      location3: {
+        image: 'c.jpg',
+        size: [55, 55]
+      },
+      location4: {
+        image: 'd.jpg',
+        size: [50, 50]
+      }
+    };
+
+    // 监听位置变化
+    database.ref('location').on('value', (snapshot) => {
+      const location = snapshot.val() || 'location1';
+      const person = document.getElementById('person');
+      
+      // 应用新样式
+      person.className = location;
+      person.style.backgroundImage = `url(${locationConfig[location].image})`;
+      person.style.width = `${locationConfig[location].size[0]}px`;
+      person.style.height = `${locationConfig[location].size[1]}px`;
+    });
+
+    // 预加载图片
+    function preloadImages() {
+      Object.values(locationConfig).forEach(config => {
+        new Image().src = config.image;
+      });
+    }
+    window.onload = preloadImages;
+
+    // 管理员更新位置
+    function updateLocation() {
+      const password = prompt("请输入管理员密码:");
+      if (password !== "OOO") return;
+
+      const selectedLocation = document.getElementById('location').value;
+      database.ref('location').set(selectedLocation);
+    }
+
+    // 显示管理员界面
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('admin') === 'true') {
+      document.getElementById('adminPanel').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
